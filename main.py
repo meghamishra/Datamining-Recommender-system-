@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 #%%
 df = pd.read_csv('recommendationMovie.csv', header = None)
-data = np.asarray(df)
+data = np.asarray(df,dtype=int)
 
 # row = movie, column = day
 # for each arm set Si, Fi = 0
@@ -158,27 +158,82 @@ np.arange(1,10)
 
 
 # %%
-eta=1
-w=np.ones(data.shape[0])
-pr=np.ones(data.shape[0])
-armss = np.arange(data.shape[0])
-arm_selected = []
+# # --------------CODE FOR MULT-weightUpdate WITH FULL FEEDBACK--------
+# eta=1
+# w=np.ones(data.shape[0])
+# pr=np.ones(data.shape[0])
+# armss = np.arange(data.shape[0])
+# arm_selected = []
+# reward_sum = 0
+# reward_sum_arr = []
+# for t in range(data.shape[1]):
+#     pr=w/sum(w)
+#     arm=np.random.choice(armss,1,p=pr)
+#     reward = data[arm,t]
+#     loss=(1-data[:,t])
+#     w=w*(1-eta*loss)
+#     eta = 1/np.sqrt(t+1)
+#     arm_selected.append(arm)
+#     reward_sum += reward
+#     # print(reward_sum)
+#     reward_sum_arr.extend(reward_sum)
+
+
+#%%
+# # ------
+
+# %%
+# %%
+# ----------CODE FOR UCB FULL FEEDBACK------LINE 110-129---------
+
+# mu=np.zeros(data.shape[0])
+# n=np.ones(data.shape[0])
+# UCB=np.zeros(data.shape[0])
+# arms = []
+# reward_sum = 0
+# reward_sum_arr = []
+# for t in range(data.shape[1]):
+#     if (t<data.shape[0]):
+#         mu[t] = data[t,t]
+#     else:
+#         UCB=mu+np.sqrt((2*np.log(t))/n)
+#         j=np.argmax(UCB)
+#         reward=data[j,t]
+#         reward_sum += reward
+#         n+=1
+#         mu=mu+(1/n)*(data[:,t]-mu)
+#         arms.append(j)
+#         reward_sum_arr.append(reward_sum)
+
+# plt.plot(reward_sum_arr)
+
+# %%
+# ---------e-greedy with full feedback---------------
+reward_count = np.zeros(data.shape[0])
+arm_count = np.zeros(data.shape[0])-0.001
+arms = []
+eps = 1
 reward_sum = 0
 reward_sum_arr = []
 for t in range(data.shape[1]):
-    pr=w/sum(w)
-    arm=np.random.choice(armss,1,p=pr)
-    reward = data[arm,t]
-    loss=(1-data[:,t])
-    w=w*(1-eta*loss)
-    eta = 1/np.sqrt(t+1)
-    arm_selected.append(arm)
+    temp=np.random.rand(1)
+    # eps = 1/(t+1)
+    eps = eps*0.995
+    if temp<eps:
+        i=np.random.randint(0,data.shape[0])
+    else:
+        mu = reward_count/arm_count               
+        i=np.argmax(mu)
+
+    reward = data[i,t]
+    # reward_count[i]+=reward
+    # arm_count[i]+=1
+    reward_count+=data[:,t]
+    arm_count+=1
+    arms.append(i)
     reward_sum += reward
-    # print(reward_sum)
-    reward_sum_arr.extend(reward_sum)
+    reward_sum_arr.append(reward_sum)
 
-
-# %%
-
+plt.plot(reward_sum_arr)
 
 # %%
