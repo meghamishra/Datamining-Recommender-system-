@@ -1,7 +1,13 @@
 import numpy as np
 import pandas as pd
-
+import matplotlib.pyplot as plt
 # e_greedy_ff, 
+
+def plot_func(reward_sum_arr):
+    plt.clf()
+    plt.plot(reward_sum_arr)
+    plt.show()
+    
 
 def get_best_probs(data):
     reward = np.zeros(data.shape[0])
@@ -14,7 +20,8 @@ def get_best_probs(data):
 
 
 def Thompson_sampling(data,best_prob):
-
+    reward_sum = 0
+    reward_sum_arr = []
     S = np.zeros(data.shape[0])
     F = np.zeros(data.shape[0])
     theta = np.zeros(data.shape[0])
@@ -31,13 +38,41 @@ def Thompson_sampling(data,best_prob):
         else:
             F[result[t]] +=1
         arm_now = result[t]
+        reward_sum+=data[result[t],t]
+        reward_sum_arr.append(reward_sum)
         prob_now = (S[arm_now]+1)/(S[arm_now]+F[arm_now]+2)
         regret.append(best_prob[t]-prob_now)
-    return F,S
+    return reward_sum_arr,regret
 
 
+def  Thompson_sampling_ff(data,best_prob):
 
-def EXP3(data):
+    reward_sum = 0
+    reward_sum_arr = []
+    S = np.zeros(data.shape[0])
+    F = np.zeros(data.shape[0])
+    theta = np.zeros(data.shape[0])
+    result = -1*np.ones(data.shape[1],dtype=int)
+    regret = []
+    for t in range(data.shape[1]):
+        if t%100==0:
+            print(t)
+        for arm in range(data.shape[0]):
+            theta[arm] = np.random.beta(S[arm]+1,F[arm]+1)
+        result[t] = np.argmax(theta)
+
+        S[data[:,t]==1] +=1
+        F[data[:,t]==0] +=1
+
+        arm_now = result[t]
+        reward_sum+=data[result[t],t]
+        reward_sum_arr.append(reward_sum)
+        prob_now = (S[arm_now]+1)/(S[arm_now]+F[arm_now]+2)
+        regret.append(best_prob[t]-prob_now)
+
+    return reward_sum_arr,regret
+
+def EXP3(data,prob_best):
 
     lr = np.ones(data.shape[1])/(np.arange(1,data.shape[1]+1))**0.5
     Loss = np.zeros(data.shape[0])
@@ -46,6 +81,8 @@ def EXP3(data):
     loss_list = [0]
     loss_cum_avg_list = [0]
     regret = []
+    reward_sum = 0
+    reward_sum_arr = []
     for t in range(data.shape[1]):
         It = np.random.choice(np.arange(data.shape[0]),1,p = pr)
         selections.append(It)
@@ -54,10 +91,11 @@ def EXP3(data):
         Loss[It] += (1-data[It,t])/pr[It]
         regret.append(prob_best[t]-pr[It])
         pr = np.exp(-lr[t]*Loss)/np.sum(np.exp(-lr[t]*Loss))
-        
-    return loss_cum_avg_list,regret
+        reward_sum+= data[It,t]
+        reward_sum_arr.append(reward_sum)
+    return reward_sum_arr,regret
 
-def e_greedy_ff(data):
+def e_greedy_ff(data,prob_best):
     reward_count = np.zeros(data.shape[0])
     arm_count = np.zeros(data.shape[0])-0.001
     arms = []
@@ -73,24 +111,18 @@ def e_greedy_ff(data):
         else:
             mu = reward_count/arm_count               
             i=np.argmax(mu)
-
+        prob_now = reward_count[i]/arm_count[i]
+        regret.append(prob_best[t]-prob_now)
         reward = data[i,t]
         reward_count+=data[:,t]
         arm_count+=1
         arms.append(i)
         reward_sum += reward
         reward_sum_arr.append(reward_sum)
-    return reward_sum_arr
+    return reward_sum_arr,regret
 
 
-def UCB(data):
-    # set mu_i (mean reward for arm i),ni (num of times arm i picked) to zeros
-    # Try all once, ni = 1
-    # for t-----
-    # calc UCB ui + root(2lnt/ni) 
-    # j = argmax (UCB)
-    # nj+=1, mu_j = mu_j+1/nj(yt-mu_j)
-
+def UCB(data,prob_best):
 
     mu=np.zeros(data.shape[0])
     n=np.ones(data.shape[0])
@@ -98,6 +130,7 @@ def UCB(data):
     arms = []
     reward_sum = 0
     reward_sum_arr = []
+    regret = []
     for t in range(data.shape[1]):
         if (t<data.shape[0]):
             mu[t] = data[t,t]
@@ -110,8 +143,8 @@ def UCB(data):
             mu[j]=mu[j]+(1/n[j])*(reward-mu[j])
             arms.append(j)
             reward_sum_arr.append(reward_sum)
-            
-    return reward_sum_arr
+        regret.append(prob_best[t] - mu[j])
+    return reward_sum_arr,regret
 
 def UCB_ff(data,best_prob):
     mu=np.zeros(data.shape[0])
@@ -137,7 +170,7 @@ def UCB_ff(data,best_prob):
     return reward_sum_arr,regret
 
 
-def Multi_weighted(data):
+def Multi_weighted(data,prob_best):
 
     eta=1
     w=np.ones(data.shape[0])
@@ -146,6 +179,7 @@ def Multi_weighted(data):
     arm_selected = []
     reward_sum = 0
     reward_sum_arr = []
+    regret = []
     for t in range(data.shape[1]):
         pr=w/sum(w)
         arm=np.random.choice(armss,1,p=pr)
@@ -155,6 +189,60 @@ def Multi_weighted(data):
         eta = 1/np.sqrt(t+1)
         arm_selected.append(arm)
         reward_sum += reward
-        # print(reward_sum)
         reward_sum_arr.extend(reward_sum)
-    return reward_sum_arr,arm_selected
+        regret.append(prob_best[t] - pr[arm])
+    return reward_sum_arr,regret
+
+def e_greedy(data,prob_best):
+    reward_count = np.zeros(data.shape[0])
+    arm_count = np.zeros(data.shape[0])-0.001
+    arms = []
+    eps = 1
+    reward_sum = 0
+    reward_sum_arr = []
+    regret = []
+    for t in range(data.shape[1]):
+        temp=np.random.rand(1)
+        # eps = 1/(t+1)
+        eps = eps*0.995
+        if temp<eps:
+            i=np.random.randint(0,data.shape[0])
+        else:
+            mu = reward_count/arm_count               
+            i=np.argmax(mu)
+        prob_now = reward_count[i]/arm_count[i]
+        regret.append(prob_best[t]-prob_now)
+        reward = data[i,t]
+        reward_count[i]+=reward
+        arm_count[i]+=1
+        arms.append(i)
+        reward_sum += reward
+        reward_sum_arr.append(reward_sum)
+    return reward_sum_arr,regret
+
+def get_ten_best_movie_plots(data,best_prob,best_movies):
+    eta=1
+    w=np.ones(data.shape[0])
+    pr=np.ones(data.shape[0])
+    armss = np.arange(data.shape[0])
+    arm_selected = []
+    reward_sum = 0
+    reward_sum_arr = []
+    regret = []
+    prob_best_movies = []
+    for t in range(data.shape[1]):
+        pr=w/sum(w)
+        arm=np.random.choice(armss,1,p=pr)
+        reward = data[arm,t]
+        loss=(1-data[:,t])
+        w=w*(1-eta*loss)
+        eta = 1/np.sqrt(t+1)
+        arm_selected.append(arm)
+        reward_sum += reward
+        reward_sum_arr.extend(reward_sum)
+        regret.append(best_prob[t] - pr[arm])
+        prob_best_movies.append(pr[best_movies])
+    prob_best_movies_arr = np.asarray(prob_best_movies)
+    for i in range(prob_best_movies_arr.shape[1]):
+        plt.plot(prob_best_movies_arr[:,i])
+    plt.show()

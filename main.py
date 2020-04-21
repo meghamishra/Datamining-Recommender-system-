@@ -50,7 +50,42 @@ data = np.asarray(df,dtype=int)
 # plt.plot(regret_by_t)
 
 # ----------------THOMPSON ENDS
+
+#%% FULL FEEBACK THOMPSON  56-83
+
+S = np.zeros(data.shape[0])
+F = np.zeros(data.shape[0])
+theta = np.zeros(data.shape[0])
+result = -1*np.ones(data.shape[1],dtype=int)
+
+#%%
+for t in range(data.shape[1]):
+    if t%100==0:
+        print(t)
+    for arm in range(data.shape[0]):
+        theta[arm] = np.random.beta(S[arm]+1,F[arm]+1)
+    result[t] = np.argmax(theta)
+   
+    S[data[:,t]==1] +=1
+    F[data[:,t]==0] +=1
+    
+
+
+#row movie, column is time (day)
+#%%
+u = (S+1)/(S+F+2)
+regret = max(u)-u[result]
+regret_by_t = []
+for t in range(data.shape[1]):
+    regret_t = np.sum(regret[:t])
+    regret_by_t.append(regret_t/(t+1)) 
+    
+plt.plot(regret_by_t)
+
+# ----------------THOMPSON ENDS
+
 #EXP3
+
 
 #%%
 #eta= non decreasing sequence of N real numbers 
@@ -138,7 +173,7 @@ np.arange(1,10)
 # reward_sum = 0
 # reward_sum_arr = []
 # for t in range(data.shape[1]):
-#     temp=np.random.rand(1)
+#     temp=np.random.rand(
 #     # eps = 1/(t+1)
 #     eps = eps*0.995
 #     if temp<eps:
@@ -209,30 +244,30 @@ np.arange(1,10)
 
 # %%
 # ---------e-greedy with full feedback---------------
-reward_count = np.zeros(data.shape[0])
-arm_count = np.zeros(data.shape[0])-0.001
-arms = []
-eps = 1
-reward_sum = 0
-reward_sum_arr = []
-for t in range(data.shape[1]):
-    temp=np.random.rand(1)
-    # eps = 1/(t+1)
-    eps = eps*0.995
-    if temp<eps:
-        i=np.random.randint(0,data.shape[0])
-    else:
-        mu = reward_count/arm_count               
-        i=np.argmax(mu)
+# reward_count = np.zeros(data.shape[0])
+# arm_count = np.zeros(data.shape[0])-0.001
+# arms = []
+# eps = 1
+# reward_sum = 0
+# reward_sum_arr = []
+# for t in range(data.shape[1]):
+#     temp=np.random.rand(1)
+#     # eps = 1/(t+1)
+#     eps = eps*0.995
+#     if temp<eps:
+#         i=np.random.randint(0,data.shape[0])
+#     else:
+#         mu = reward_count/arm_count               
+#         i=np.argmax(mu)
 
-    reward = data[i,t]
-    # reward_count[i]+=reward
-    # arm_count[i]+=1
-    reward_count+=data[:,t]
-    arm_count+=1
-    arms.append(i)
-    reward_sum += reward
-    reward_sum_arr.append(reward_sum)
+#     reward = data[i,t]
+#     # reward_count[i]+=reward
+#     # arm_count[i]+=1
+#     reward_count+=data[:,t]
+#     arm_count+=1
+#     arms.append(i)
+#     reward_sum += reward
+#     reward_sum_arr.append(reward_sum)
 
 # plt.plot(reward_sum_arr)
 

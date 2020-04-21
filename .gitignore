@@ -1,3 +1,4 @@
 *.csv
 *.code-workspace
 *.pdf
+__pycache__
