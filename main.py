@@ -4,7 +4,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
+from helper import *
 #%%
 df = pd.read_csv('recommendationMovie.csv', header = None)
 data = np.asarray(df,dtype=int)
@@ -234,6 +234,19 @@ for t in range(data.shape[1]):
     reward_sum += reward
     reward_sum_arr.append(reward_sum)
 
-plt.plot(reward_sum_arr)
+# plt.plot(reward_sum_arr)
 
+
+
+# %%
+# def get_best_probs(data):
+#     reward = np.zeros(data.shape[0])
+#     best_prob = []
+#     for i in range(data.shape[1]):
+#         reward[data[:,i]==1] +=1
+#         prob_now = reward/(i+1)
+#         best_prob.append(max(prob_now))
+#     return best_prob
+
+# best_probs = get_best_probs(data)
 # %%
