@@ -20,7 +20,7 @@ reward_sum_arr,regret=Thompson_sampling(data,best_prob)
 plot_func(reward_sum_arr)
 
 
-
+#%%
 #### Implementing various algorithms:
 
 ####################################### Thompson algorithms FF############################################
@@ -30,15 +30,17 @@ reward_sum_arr,regret=Thompson_sampling_ff(data,best_prob)
 ### Plotting function:
 plot_func(reward_sum_arr)
 
-
+#%%
 ############################################## EXP3 algorithms#####################################
 
 reward_sum_arr,regret=EXP3(data,best_prob)
+
 
 ### Plotting function:
 plot_func(reward_sum_arr)
 
 ############################################E-Greedy#########################################
+#%%
 
 reward_sum_arr,regret=e_greedy(data,best_prob)
 
@@ -46,6 +48,7 @@ reward_sum_arr,regret=e_greedy(data,best_prob)
 plot_func(reward_sum_arr)
 
 #################################### E-Greedy full feedback algorithms##################################
+#%%
 
 reward_sum_arr,regret=e_greedy_ff(data,best_prob)
 
@@ -54,6 +57,7 @@ plot_func(reward_sum_arr)
 
 
 ############################################UCB Algorithm###################################################
+#%%
 
 reward_sum_arr,regret=UCB(data,best_prob)
 
@@ -64,6 +68,7 @@ plot_func(reward_sum_arr)
 
 
 #######################################UCB full feedback Algorithm#######################################
+#%%
 
 reward_sum_arr,regret=UCB_ff(data,best_prob)
 
@@ -73,7 +78,17 @@ plot_func(reward_sum_arr)
 
 
 ####################################### Multi-weighted Algorithm######################################3
+#%%
+
 reward_sum_arr,regret=Multi_weighted(data,best_prob)
+
+### Plotting function:
+plot_func(reward_sum_arr)
+
+####################################### Multi-weighted-full feedback Algorithm######################################3
+#%%
+
+reward_sum_arr,regret=Multi_weighted_ff(data,best_prob)
 
 ### Plotting function:
 plot_func(reward_sum_arr)

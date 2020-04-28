@@ -92,7 +92,7 @@ def EXP3(data,prob_best):
         regret.append(prob_best[t]-pr[It])
         pr = np.exp(-lr[t]*Loss)/np.sum(np.exp(-lr[t]*Loss))
         reward_sum+= data[It,t]
-        reward_sum_arr.append(reward_sum)
+        reward_sum_arr.extend(reward_sum)
     return reward_sum_arr,regret
 
 def e_greedy_ff(data,prob_best):
@@ -134,6 +134,7 @@ def UCB(data,prob_best):
     for t in range(data.shape[1]):
         if (t<data.shape[0]):
             mu[t] = data[t,t]
+            j=t
         else:
             UCB=mu+np.sqrt((2*np.log(t))/n)
             j=np.argmax(UCB)
@@ -141,8 +142,8 @@ def UCB(data,prob_best):
             reward_sum += reward
             n[j]+=1
             mu[j]=mu[j]+(1/n[j])*(reward-mu[j])
-            arms.append(j)
-            reward_sum_arr.append(reward_sum)
+        arms.append(j)
+        reward_sum_arr.append(reward_sum)
         regret.append(prob_best[t] - mu[j])
     return reward_sum_arr,regret
 
@@ -154,9 +155,11 @@ def UCB_ff(data,best_prob):
     reward_sum = 0
     reward_sum_arr = []
     regret = []
+    j=0
     for t in range(data.shape[1]):
         if (t<data.shape[0]):
             mu[t] = data[t,t]
+            j=t
         else:
             UCB=mu+np.sqrt((2*np.log(t))/n)
             j=np.argmax(UCB)
@@ -164,13 +167,35 @@ def UCB_ff(data,best_prob):
             reward_sum += reward
             n+=1
             mu=mu+(1/n)*(data[:,t]-mu)
-            arms.append(j)
-            reward_sum_arr.append(reward_sum)
+        arms.append(j)
+        reward_sum_arr.append(reward_sum)
         regret.append(best_prob[t] - mu[j])
     return reward_sum_arr,regret
 
 
 def Multi_weighted(data,prob_best):
+    eta=1
+    w=np.ones(data.shape[0])
+    pr=np.ones(data.shape[0])
+    armss = np.arange(data.shape[0])
+    arm_selected = []
+    reward_sum = 0
+    reward_sum_arr = []
+    regret = []
+    for t in range(data.shape[1]):
+        pr=w/sum(w)
+        arm=np.random.choice(armss,1,p=pr)
+        reward = data[arm,t]
+        loss=(1-data[arm,t])
+        w[arm]=w[arm]*(1-eta*loss)
+        eta = 1/np.sqrt(t+1)
+        arm_selected.append(arm)
+        reward_sum += reward
+        reward_sum_arr.extend(reward_sum)
+        regret.append(prob_best[t] - pr[arm])
+    return reward_sum_arr,regret
+
+def Multi_weighted_ff(data,prob_best):
 
     eta=1
     w=np.ones(data.shape[0])
