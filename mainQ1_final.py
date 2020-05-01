@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from helper import *
+from helper_Q1 import *
 #%%
 df = pd.read_csv('recommendationMovie.csv', header = None)
 data = np.asarray(df,dtype=int)

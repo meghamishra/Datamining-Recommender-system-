@@ -8,7 +8,7 @@ Created on Sat Apr 25 13:29:28 2020
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from helperfor2 import *
+from helper_Q2 import *
 pd.set_option('display.max_columns', 500)
 
 
