@@ -39,6 +39,13 @@ reward_sum_arr,regret=EXP3(data,best_prob)
 ### Plotting function:
 plot_func(reward_sum_arr)
 
+############################################## EXP3 algorithms  Full Feebback#####################
+#%%
+reward_sum_arr,regret=EXP3_FF(data,best_prob)
+
+### Plotting function:
+plot_func(reward_sum_arr)
+
 ############################################E-Greedy#########################################
 #%%
 

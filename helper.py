@@ -218,6 +218,30 @@ def Multi_weighted_ff(data,prob_best):
         regret.append(prob_best[t] - pr[arm])
     return reward_sum_arr,regret
 
+def EXP3_FF(data,prob_best):
+
+     lr = np.ones(data.shape[1])/(np.arange(1,data.shape[1]+1))**0.5
+     Loss = np.zeros(data.shape[0])
+     pr = np.ones(data.shape[0])/data.shape[0]
+     selections = []
+     loss_list = [0]
+     loss_cum_avg_list = [0]
+     regret = []
+     reward_sum = 0
+     reward_sum_arr = []
+     for t in range(data.shape[1]):
+ 
+         It = np.random.choice(np.arange(data.shape[0]),1,p = pr)
+         selections.append(It)
+         loss_list.append(1-data[It,t])
+         loss_cum_avg_list.append(((1-data[It,t])+loss_cum_avg_list[-1]*t)/(t+1))        
+         Loss += (1-data[:,t])       
+         regret.append(prob_best[t]-pr[It])        
+         pr = np.exp(-lr[t]*Loss)/np.sum(np.exp(-lr[t]*Loss))        
+         reward_sum+= data[It,t]
+         reward_sum_arr.extend(reward_sum)
+     return reward_sum_arr,regret
+
 def e_greedy(data,prob_best):
     reward_count = np.zeros(data.shape[0])
     arm_count = np.zeros(data.shape[0])-0.001
