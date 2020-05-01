@@ -6,5 +6,5 @@ d. Multiplicative weight update \
 e. EXP-3 
 
 # Online Clustering 
-a. K-means \ 
+a. K-means \
 b. K-means ++ \
