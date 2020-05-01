@@ -7,4 +7,4 @@ e. EXP-3
 
 # Online Clustering 
 a. K-means \
-b. K-means ++ \
+b. K-means ++ 
