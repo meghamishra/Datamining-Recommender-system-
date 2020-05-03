@@ -51,12 +51,13 @@ def k_means_centriods(num_clus,arr,iters,batch_size,lr,centroids):
         data_array = data_array.repeat(centroid_arr.shape[2],axis = 2)
         dists = np.sum((data_array-centroid_arr)**2,axis = 1)
         closest_center_arg = np.argmin(dists,axis = 1)
-        
     
         
         for i in range(num_clus):   
             if (closest_center_arg==i).any(): 
                 centroids[i] = centroids[i] + lr*(np.mean(mini_batch[closest_center_arg==i],axis = 0)-centroids[i])
+        lr=lr*1/np.sqrt(itrs+1)
+                
                 
                 
     return centroids
